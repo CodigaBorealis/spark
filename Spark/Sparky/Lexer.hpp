@@ -50,7 +50,6 @@ namespace Spark::Sparky{
             //types
             IntType,
             UIntType,
-            IntAlias,
             FloatType,
             CharType,
             StringType,
@@ -59,6 +58,7 @@ namespace Spark::Sparky{
             PtrType,
             //operators and punctuation
             Assign,
+            Not,
             ColonAssign,
             Colon,
             DoubleColon,
@@ -74,7 +74,9 @@ namespace Spark::Sparky{
             LBrace,
             RBrace,
             Plus,
+            Increment,
             Minus,
+            Decrement,
             Star,
             Slash,
             Mod,
@@ -84,6 +86,8 @@ namespace Spark::Sparky{
             LessThanEquals,
             Equals,
             NotEquals,
+            And,
+            Or,
             //literals and identifiers
             Identifier,
             IntLiteral,
@@ -105,6 +109,8 @@ namespace Spark::Sparky{
 
         public:
 
+        Lexer() = delete;
+        
         explicit Lexer(SourceFile source)
             :
             source(std::move(source)),
@@ -115,14 +121,14 @@ namespace Spark::Sparky{
 
         private:
 
-        char peek() const;
-        char advance();
+        unsigned char peek() const;
+        unsigned char advance();
         bool eof() const;
         void skipWhiteSpaceAndComments();
 
         Token lexIdentifierKeyword();
         Token lexNumber();
-        Token lexString{};
+        Token lexString();
         
         SourceFile source{};
         std::size_t cursor{0};
@@ -155,9 +161,35 @@ namespace Spark::Sparky{
         {"true", Token::Type::True},
         {"false", Token::Type::False},
         {"string", Token::Type::StringType},
+        {"str", Token::Type::StringType},
         {"bool", Token::Type::BoolType},
         {"void", Token::Type::VoidType},
-        {"ptr", Token::Type::PtrType}
+        {"ptr", Token::Type::PtrType},
+        {"and", Token::Type::And},
+        {"or", Token::Type::Or},
+        {"i", Token::Type::IntType},
+        {"i8", Token::Type::IntType},
+        {"i16", Token::Type::IntType},
+        {"i32", Token::Type::IntType},
+        {"i64", Token::Type::IntType},
+        {"ui", Token::Type::UIntType},
+        {"ui8", Token::Type::UIntType},
+        {"ui16", Token::Type::UIntType},
+        {"ui32", Token::Type::UIntType},
+        {"ui64", Token::Type::UIntType},
+        {"f", Token::Type::FloatType},
+        {"f32", Token::Type::FloatType},
+        {"f64", Token::Type::FloatType},
+        {"fl", Token::Type::FloatType},
+        {"d", Token::Type::FloatType},
+        {"dl", Token::Type::FloatType},
+        {"uc", Token::Type::CharType},
+        {"u", Token::Type::CharType},
+        {"c", Token::Type::CharType},
+        {"uc16", Token::Type::CharType},
+        {"uc32", Token::Type::CharType},
+        {"c32", Token::Type::CharType},
+        {"c64", Token::Type::CharType},
     };
 
     };
