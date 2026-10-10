@@ -3,7 +3,7 @@
 #include <cmath>
 #include <numbers>
 
-namespace Novella::NScript::Modules::Math{
+namespace Spark::STL{
 
     double clamp(double value, double min, double max){
 

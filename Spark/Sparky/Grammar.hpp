@@ -113,11 +113,13 @@ namespace Spark::Sparky{
 
     struct Block{
 
-        Block() = default;
-        Block(Block&&) = default;
-        Block& operator=(Block&&) = default;
+        Block();
+        ~Block();
+        Block(Block&&) noexcept;
+        Block& operator=(Block&&) noexcept;
         Block(const Block&) = delete;
         Block& operator=(const Block&) = delete;
+
         std::vector<StmtPtr> statements{};
     };
 
