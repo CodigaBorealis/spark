@@ -4,11 +4,12 @@
 #include <cstddef>
 #include <utility>
 #include <unordered_map>
+#include <vector>
 
 namespace Spark::Sparky{
 
         struct SourceFile{
-        
+            
         std::filesystem::path path{};
         std::string content{};
     };
@@ -118,9 +119,11 @@ namespace Spark::Sparky{
             cursor(0)
             {}
 
-        Token nextToken();
-
+        std::vector<Token> tokenize();
+        
         private:
+        
+        Token nextToken();
 
         unsigned char peek() const;
         unsigned char advance();

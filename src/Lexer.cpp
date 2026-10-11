@@ -3,8 +3,24 @@
 #include <cstddef>
 #include <stdexcept>
 #include <string>
-
+#include <vector>
 namespace Spark::Sparky{
+
+    std::vector<Token> Lexer::tokenize(){
+
+        std::vector<Token> tokens{};
+
+        while(true){
+
+            Token token = nextToken();
+            
+            tokens.push_back(token);
+
+            if(token.type == Token::Type::EndOfFile) break;
+        }
+
+        return tokens;
+    }
 
     Token Lexer::nextToken(){
 
@@ -253,45 +269,40 @@ namespace Spark::Sparky{
             unsigned char c = peek();
 
             if(c == ' ' || c == '\t' || c == '\r' || c == '\n'){
+                
+                advance();
 
-                if(c == 'n'){
+            }else if(c == '/' && cursor + 1 < source.content.size() && source.content[cursor + 1] == '/'){
+                
+                while(!eof() && peek() != '\n'){
 
-                    location.line ++;
-                    location.column = 1;
-
-                }else{
-
-                    location.column ++;
+                    advance();
                 }
 
-                cursor ++;
+            }else if(c == '/' && cursor + 1 < source.content.size() && source.content[cursor + 1] == '*'){
 
-            }else if(c == '/'){
+                advance();
+                advance();
 
-                if(cursor + 1 < source.content.size() && source.content[cursor + 1] == '*'){
+                while(!eof()){
 
-                    advance();
-                    advance();
-
-                    while(!eof()){
-
-                        if(peek() == '*' && cursor + 1 < source.content.size() && source.content[cursor + 1] == '/'){
-
-                            advance();
-                            advance();
-                            break;
-                        }
+                    if(peek() == '*' && cursor + 1 < source.content.size() && source.content[cursor + 1] == '/'){
 
                         advance();
+                        advance();
+                        break;
                     }
-                    
-                }else{
 
-                    break;
+                    advance();
                 }
+                    
+            }else{
+
+                break;
             }
         }
     }
+    
 
     Token Lexer::lexIdentifierKeyword(){
 

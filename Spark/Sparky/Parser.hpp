@@ -1,5 +1,5 @@
 #pragma once
-#include "Grammar.hpp"
+#include "AST.hpp"
 #include "Spark/Sparky/Lexer.hpp"
 #include <cstddef>
 #include <vector>
@@ -19,6 +19,7 @@ namespace Spark::Sparky{
             {}
 
         Program buildAST();
+        std::string dumpTree();
 
         private:
 
@@ -54,8 +55,6 @@ namespace Spark::Sparky{
         
         void consume();
         void expect(Token::Type type);
-
-        std::string dumpTree();
 
         TypeSpecifier parseSpecifier();
         IntLiteral parseInt();

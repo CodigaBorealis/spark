@@ -347,7 +347,7 @@ namespace Spark::Sparky{
 
     CharacterLiteral Parser::parseChar(){
 
-        ParseScope scope{*this, "StringLiteral: " + current().text};
+        ParseScope scope{*this, "CharacterLiteral: " + current().text};
 
         if(current().type != Token::Type::CharacterLiteral) throw std::runtime_error("Expected character literal:\n" + dumpTree());
 

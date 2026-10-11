@@ -14,6 +14,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_executable(Sparky
     main.cpp
     src/Math.cpp    
+    src/Lexer.cpp
+    src/Parser.cpp
+    src/FileReader.cpp
+    src/AST.cpp
 )
 
 target_link_libraries(Sparky
