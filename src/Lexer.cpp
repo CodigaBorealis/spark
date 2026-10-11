@@ -1,5 +1,6 @@
 #include "Spark/Sparky/Lexer.hpp"
 #include <cctype>
+#include <cstddef>
 #include <stdexcept>
 #include <string>
 
@@ -373,5 +374,27 @@ namespace Spark::Sparky{
 
         return {Token::Type::StringLiteral, value, {location.line, location.column}};
 
+    }
+
+    Token Lexer::lexChar(){
+
+        advance();
+
+        std::string value{};
+        std::size_t count{};
+
+        while(!eof() && peek() != '\''){
+
+            value += advance();
+            count ++;
+
+            if(count > 1) throw std::runtime_error("Expected single character literal at: "+ std::to_string(location.line) + ":" + std::to_string(location.column));
+        }
+
+        if(eof()) throw std::runtime_error("Unterminated character literal at: " + std::to_string(location.line) + ":" + std::to_string(location.column));
+
+        advance();
+        
+        return {Token::Type::CharacterLiteral, value, {location.line, location.column}};
     }
 }

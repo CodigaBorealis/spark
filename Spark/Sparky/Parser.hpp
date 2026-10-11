@@ -61,6 +61,7 @@ namespace Spark::Sparky{
         IntLiteral parseInt();
         FloatLiteral parseFloat();
         StringLiteral parseString();
+        CharacterLiteral parseChar();
         BoolLiteral parseBool();
         NoneLiteral parseNone();
         ThisExpr parseThis();

@@ -96,7 +96,8 @@ namespace Spark::Sparky{
 
         std::variant<IntLiteral,
         FloatLiteral, 
-        StringLiteral, 
+        StringLiteral,
+        CharacterLiteral, 
         BoolLiteral,
         NoneLiteral, 
         ThisExpr, 

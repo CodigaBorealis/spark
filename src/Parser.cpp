@@ -345,6 +345,22 @@ namespace Spark::Sparky{
         return unary;
     }
 
+    CharacterLiteral Parser::parseChar(){
+
+        ParseScope scope{*this, "StringLiteral: " + current().text};
+
+        if(current().type != Token::Type::CharacterLiteral) throw std::runtime_error("Expected character literal:\n" + dumpTree());
+
+        CharacterLiteral literal{};
+
+        std::string value{current().text};
+
+        consume();
+
+        return CharacterLiteral{value[1]};
+
+    }
+
     Expr Parser::parsePrimaryOrUnary(){
 
         ParseScope scope{*this, "Unary solving: " + current().text};
@@ -368,6 +384,11 @@ namespace Spark::Sparky{
             case Token::Type::StringLiteral:
 
                 expression.node = parseString();
+                return expression;
+
+            case Token::Type::CharacterLiteral:
+
+                expression.node = parseChar();
                 return expression;
 
             case Token::Type::True:

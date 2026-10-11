@@ -93,6 +93,7 @@ namespace Spark::Sparky{
             IntLiteral,
             FloatLiteral,
             StringLiteral,
+            CharacterLiteral,
             Comment,
             BlockComment,
             Ws,
@@ -129,6 +130,7 @@ namespace Spark::Sparky{
         Token lexIdentifierKeyword();
         Token lexNumber();
         Token lexString();
+        Token lexChar();
         
         SourceFile source{};
         std::size_t cursor{0};
