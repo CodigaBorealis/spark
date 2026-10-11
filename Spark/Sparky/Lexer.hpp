@@ -55,7 +55,7 @@ namespace Spark::Sparky{
             StringType,
             BoolType,
             VoidType,
-            PtrType,
+            RefType,
             //operators and punctuation
             Assign,
             Not,
@@ -164,7 +164,7 @@ namespace Spark::Sparky{
         {"str", Token::Type::StringType},
         {"bool", Token::Type::BoolType},
         {"void", Token::Type::VoidType},
-        {"ptr", Token::Type::PtrType},
+        {"ref", Token::Type::RefType},
         {"and", Token::Type::And},
         {"or", Token::Type::Or},
         {"i", Token::Type::IntType},
@@ -177,19 +177,12 @@ namespace Spark::Sparky{
         {"ui16", Token::Type::UIntType},
         {"ui32", Token::Type::UIntType},
         {"ui64", Token::Type::UIntType},
-        {"f", Token::Type::FloatType},
-        {"f32", Token::Type::FloatType},
-        {"f64", Token::Type::FloatType},
         {"fl", Token::Type::FloatType},
-        {"d", Token::Type::FloatType},
         {"dl", Token::Type::FloatType},
         {"uc", Token::Type::CharType},
-        {"u", Token::Type::CharType},
         {"c", Token::Type::CharType},
-        {"uc16", Token::Type::CharType},
-        {"uc32", Token::Type::CharType},
+        {"c16", Token::Type::CharType},
         {"c32", Token::Type::CharType},
-        {"c64", Token::Type::CharType},
     };
 
     };

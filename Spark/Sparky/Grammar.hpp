@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <string>
 #include <memory>
 #include <optional>
@@ -12,6 +13,11 @@ namespace Spark::Sparky{
     using ExprPtr = std::unique_ptr<Expr>;
     using StmtPtr = std::unique_ptr<Stmt>;
 
+    using IntegerValue = std::variant<std::int64_t, std::uint64_t>;
+
+    using FloatValue = std::variant<float, double>;
+    using CharValue = std::variant<char, unsigned char>;
+
     struct TypeSpecifier{
 
         std::string name{};
@@ -19,11 +25,17 @@ namespace Spark::Sparky{
 
     struct IntLiteral{
 
-        int64_t value{};
+        IntegerValue value{};
     };
+
     struct FloatLiteral{
 
-        double value{};
+        FloatValue value{};
+    };
+
+    struct CharacterLiteral{
+        
+        CharValue value{};
     };
 
     struct StringLiteral{
@@ -38,7 +50,6 @@ namespace Spark::Sparky{
 
     struct NoneLiteral{
 
-
     };
 
     struct ThisExpr{
@@ -48,7 +59,7 @@ namespace Spark::Sparky{
 
     struct VariableRef{
 
-        std::vector<std::string> path{};//QualifiedName(i.e, Math::convert());
+        std::vector<std::string> path{};//QualifiedName(i.e, Math::convert()); &something
     };
 
     struct BinaryExpr{
@@ -233,4 +244,5 @@ namespace Spark::Sparky{
 
         std::vector<TopLevelItem> items{};
     };
+    
 }

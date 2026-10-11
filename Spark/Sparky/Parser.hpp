@@ -22,7 +22,29 @@ namespace Spark::Sparky{
 
         private:
 
+        struct ParseScope{
+
+            ParseScope(Parser& parser, std::string ruleName)
+                :
+                parser(parser){
+
+                    parser.ruleTrace.push_back(std::move(ruleName));
+                }
+
+            ~ParseScope(){
+
+                parser.ruleTrace.pop_back();
+            }
+
+
+            Parser& parser;
+                
+        };
+
         std::vector<Token> tokens{};
+        std::vector<std::string> ruleTrace{};
+        std::string parsed{};
+
         std::size_t cursor{0};
 
         SourceLocation location{};
@@ -31,18 +53,21 @@ namespace Spark::Sparky{
         Token& peek(std::size_t offset);
         
         void consume();
-        void expect();
-        
+        void expect(Token::Type type);
+
+        std::string dumpTree();
+
         TypeSpecifier parseSpecifier();
         IntLiteral parseInt();
         FloatLiteral parseFloat();
         StringLiteral parseString();
-        BoolLiteral paseBool();
+        BoolLiteral parseBool();
         NoneLiteral parseNone();
         ThisExpr parseThis();
         VariableRef parseRef();
-        BinaryExpr parseBinary();
+        Expr parseBinary();
         UnaryExpr parseUnary();
+        Expr parsePrimaryOrUnary();
         FunctionCall parseCall();
         ArrayLiteral parseArray();
         Expr parseExpression();
