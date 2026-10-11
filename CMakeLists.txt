@@ -18,6 +18,7 @@ add_executable(Sparky
     src/Parser.cpp
     src/FileReader.cpp
     src/AST.cpp
+    src/ASTPrinter.cpp
 )
 
 target_link_libraries(Sparky

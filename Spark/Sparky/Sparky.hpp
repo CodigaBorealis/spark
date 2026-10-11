@@ -1,6 +1,7 @@
 #pragma once
 #include <filesystem>
 #include <vector>
+
 namespace Spark{
 
     struct TranspilerOptions{
@@ -26,6 +27,7 @@ namespace Spark{
         private:
 
         TranspilerOptions options_{};
+
     };
 
 }
