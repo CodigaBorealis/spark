@@ -120,7 +120,7 @@ namespace Spark::Sparky{
             {}
 
         std::vector<Token> tokenize();
-        
+
         private:
         
         Token nextToken();
@@ -170,6 +170,7 @@ namespace Spark::Sparky{
         {"bool", Token::Type::BoolType},
         {"void", Token::Type::VoidType},
         {"ref", Token::Type::RefType},
+        {"&", Token::Type::Ref},
         {"and", Token::Type::And},
         {"or", Token::Type::Or},
         {"i", Token::Type::IntType},

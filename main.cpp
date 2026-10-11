@@ -17,17 +17,9 @@ int main(){
 
     auto tokens = lexer.tokenize();
 
+    Spark::Sparky::Parser parser{tokens};
 
-    for(const auto& t : tokens){
-
-        std::cout << t.text;
-    }
-
-    //Spark::Sparky::Parser parser{tokens};
-
-    //auto ast = parser.buildAST();
-
-    //parser.dumpTree();
-
+    auto ast = parser.buildAST();
+    
     return 0;
 }

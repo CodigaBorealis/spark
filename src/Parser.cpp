@@ -1,6 +1,7 @@
 #include "Spark/Sparky/Parser.hpp"
 #include "Spark/Sparky/Lexer.hpp"
 #include <cstddef>
+#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -22,7 +23,7 @@ namespace Spark::Sparky{
 
             for(std::size_t x = 0; x < ruleTrace.size(); x ++){
 
-                report += std::string{static_cast<char>(x * 2), ' '} + "-> " + ruleTrace[x] + "\n";
+                report += std::string(static_cast<char>(x * 2), ' ') + "-> " + ruleTrace[x] + "\n";
             }
         }
 
@@ -84,7 +85,12 @@ namespace Spark::Sparky{
 
     void Parser::expect(Token::Type type){
 
-        if(current().type != type) throw std::runtime_error(dumpTree());
+        if(current().type != type) throw std::runtime_error("Unexpected token '" + current().text + "' at line " +
+            std::to_string(current().location.line) + ", column " +
+            std::to_string(current().location.column) +
+            "\nExpected token type: " +
+            std::to_string(static_cast<int>(type)) +
+            dumpTree());
 
         consume();
     }
@@ -333,6 +339,11 @@ namespace Spark::Sparky{
                     unary.operation = "-";
                     break;
 
+                case Token::Type::Ref:
+
+                    unary.operation = "&";
+                    break;
+
                 default:
 
                     throw std::runtime_error("Unexpected Unary Operand:\n" + dumpTree());
@@ -411,6 +422,11 @@ namespace Spark::Sparky{
                 expression.node = parseThis();
                 return expression;
 
+            case Token::Type::Ref:
+
+                expression.node = parseUnary();
+                return expression;
+
             case Token::Type::LBracket:
 
                 expression.node = parseArray();
@@ -443,27 +459,42 @@ namespace Spark::Sparky{
                 expect(Token::Type::RParen);
                 return expression;
             
-            case Token::Type::Identifier:
+            case Token::Type::Identifier:{
 
-                if(peek(1).type == Token::Type::LParen || peek(1).type == Token::Type::DoubleColon){
+                bool isCall{false};
 
-                    std::size_t lookahead{1};
+                std::size_t lookahead{1};
 
-                    while(peek(lookahead).type == Token::Type::LParen){
+                while(peek(lookahead).type == Token::Type::DoubleColon){
 
-                        lookahead += 2;
-                    }
+                    lookahead += 1;
 
-                    if(peek(lookahead).type == Token::Type::LParen){
+                    if(peek(lookahead).type == Token::Type::Identifier){
 
-                        expression.node = parseCall();
-                        return expression;
+                        lookahead += 1;
+
+                    }else{
+
+                        break;
                     }
                 }
 
-                expression.node = parseRef();
+                if(peek(lookahead).type == Token::Type::LParen){
+
+                    isCall = true;
+                }
+
+                if(isCall){
+
+                    expression.node = parseCall();
+
+                }else{
+
+                    expression.node = parseRef();
+                }
 
                 return expression;
+            }
 
             default:
 
@@ -526,10 +557,19 @@ namespace Spark::Sparky{
 
         ParseScope scope{*this, "VariableDeclaration: " + current().text};
 
+        bool isConst{false};
+
+        if(current().type == Token::Type::Const){
+
+            isConst = true;
+            consume();
+        }
+
         if(current().type != Token::Type::Identifier) throw std::runtime_error("Expected variable name:\n" + dumpTree());
 
         VariableDecl decl{};
 
+        decl.isConst = isConst;
         decl.name = current().text;
 
         consume();
@@ -572,7 +612,7 @@ namespace Spark::Sparky{
             expect(Token::Type::Dot);
         }
 
-        if(current().type != Token::Type::Identifier) throw std::runtime_error("Expected variable name for assignment:\n");
+        if(current().type != Token::Type::Identifier) throw std::runtime_error("Expected variable name for assignment:\n" + dumpTree());
 
         assign.target = current().text;
 
@@ -580,23 +620,23 @@ namespace Spark::Sparky{
 
         if(current().type == Token::Type::Colon){
 
-            expect(Token::Type::Equals);
-
+            consume();
+            
             if(current().type == Token::Type::This){
 
                 assign.isThisAccess = true;
-
                 consume();
-
                 expect(Token::Type::Dot);
             }
+
+            expect(Token::Type::Assign);
 
             assign.value = std::make_unique<Expr>(parseExpression());
 
             return assign;
         }
 
-        expect(Token::Type::Equals);
+        expect(Token::Type::Assign);
 
         assign.value = std::make_unique<Expr>(parseExpression());
 
@@ -773,6 +813,8 @@ namespace Spark::Sparky{
 
             while(current().type != Token::Type::RBrace){
 
+                if(current().type != Token::Type::Identifier) throw std::runtime_error("Expected imported identifier:\n" + dumpTree());
+
                 stmt.selectiveImports.push_back(current().text);
 
                 consume();
@@ -788,6 +830,7 @@ namespace Spark::Sparky{
 
             consume();
             
+            return stmt;
         }
 
         throw std::runtime_error("Empty import instruction:\n" + dumpTree());
@@ -828,12 +871,21 @@ namespace Spark::Sparky{
 
             default:
 
-                if(current().type == Token::Type::Identifier && (peek(1).type == Token::Type::Colon ||
-                 peek(1).type == Token::Type::ColonAssign)){
+                bool isVarDecl = (current().type == Token::Type::Identifier && 
+                (peek(1).type == Token::Type::Colon || peek(1).type == Token::Type::ColonAssign)) ||
+                (current().type == Token::Type::Const && peek(1).type == Token::Type::Identifier && 
+                (peek(2).type == Token::Type::Colon || peek(2).type == Token::Type::ColonAssign));
+
+                bool isAssignment = (current().type == Token::Type::Identifier && peek(1).type == Token::Type::Assign) ||
+                (current().type == Token::Type::This && peek(1).type == Token::Type::Dot && 
+                peek(2).type == Token::Type::Identifier && peek(3).type == Token::Type::Assign);
+
+
+                if(isVarDecl){
 
                     stmt.node = parseVariable();
 
-                }else if(current().type == Token::Type::Identifier || current().type == Token::Type::This){
+                }else if(isAssignment){
 
                     stmt.node = parseAssign();
 
@@ -842,7 +894,7 @@ namespace Spark::Sparky{
                     stmt.node = parseExpressionStmt();
                 }
 
-                 if(current().type == Token::Type::Semi) consume();
+                if(current().type == Token::Type::Semi) consume();
         }
 
         return stmt;
@@ -907,11 +959,7 @@ namespace Spark::Sparky{
         
         function.returnType = parseSpecifier();
 
-        expect(Token::Type::LBrace);
-
         function.body = parseBlock();
-
-        expect(Token::Type::RBrace);
 
         return function;
 
@@ -951,11 +999,7 @@ namespace Spark::Sparky{
 
         expect(Token::Type::RParen);
 
-        expect(Token::Type::LBrace);
-
         constructor.body = parseBlock();
-
-        expect(Token::Type::RBrace);
 
         return constructor;
     }
@@ -1007,6 +1051,18 @@ namespace Spark::Sparky{
                 
                 break;
 
+            case Token::Type::Const:{
+
+                consume();
+
+                if(current().type != Token::Type::Identifier) throw std::runtime_error("Expected variable name after const:\n" + dumpTree());
+
+                VariableDecl varDecl = parseVariable();
+                varDecl.isConst = true;
+                member.member = std::move(varDecl);
+
+                break;
+            }
             case Token::Type::Identifier:
 
                 if(peek(1).type == Token::Type::Colon){
@@ -1055,7 +1111,7 @@ namespace Spark::Sparky{
 
         expect(Token::Type::LBrace);
 
-        while(current().type != Token::Type::RBrace){
+        while(current().type != Token::Type::RBrace && current().type != Token::Type::EndOfFile){
 
             classDecl.members.push_back(parseMember());
         }
@@ -1087,6 +1143,9 @@ namespace Spark::Sparky{
 
                 program.items.push_back(parseClass());
 
+            }else if(current().type == Token::Type::Semi || current().type == Token::Type::Ws){
+
+                consume();
             }else{
                 
                 rootBlock.statements.push_back(std::make_unique<Stmt>(parseStmt()));

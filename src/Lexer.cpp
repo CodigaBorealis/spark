@@ -1,6 +1,7 @@
 #include "Spark/Sparky/Lexer.hpp"
 #include <cctype>
 #include <cstddef>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -324,8 +325,16 @@ namespace Spark::Sparky{
 
         auto it = keywords.find(value);
 
-        if(it != keywords.end()) return {it->second, value, {location.line, location.column}};
+        if(it != keywords.end()){
+            
+            if(it->second == Token::Type::Main){
+                
+                throw std::runtime_error("'main' cannot be used to avoid conflicts during code generation, 'main' found at: " +
+                        std::to_string(location.line) + ":" + std::to_string(location.column));
+            }
 
+            return {it->second, value, {location.line, location.column}};
+    }
         return {Token::Type::Identifier, value, {location.line, location.column}};
     }
 
